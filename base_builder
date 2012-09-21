@@ -31,7 +31,7 @@ error() {
 # default config
 proxy=''
 mirror='http://mirror.aarnet.edu.au/pub/scientific/6/x86_64/os'
-name=sl6
+name=sl6-64-lyte
 vbox_version="$(VBoxManage -v | sed 's/_.*//g')"
 
 # parse cli options
