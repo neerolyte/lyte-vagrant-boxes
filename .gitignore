@@ -1,4 +1,8 @@
 cache/
 definitions/sl6-64-lyte/ks.cfg
 definitions/sl6-64-lyte/virtualbox.sh
+definitions/sl6-matrix-64-lyte/ks.cfg
+definitions/sl6-matrix-64-lyte/virtualbox.sh
 iso
+*.box
+.*.swp

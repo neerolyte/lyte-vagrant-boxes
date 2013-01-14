@@ -1,0 +1,55 @@
+#!/bin/bash -ex
+
+cd "$(dirname "$0")"
+
+if [[ -f /etc/init.d/iptables ]]; then
+	# Turn the firewall off (it's just a dev VM after all...)
+	/etc/init.d/iptables stop
+	chkconfig iptables off
+fi
+
+
+# pear packages can't be managed from ks.cfg
+pears=(
+	Auth_SASL HTTP{,_Client,_Request} I18N_UnicodeNormalizer
+	Image_Canvas-0.3.3 Image_Color Image_Color MDB2 Mail Mail_Mime Mail_Queue
+	Mail_mimeDecode Math_Stats Net_SMTP Net_Socket Net_URL Numbers_Roman
+	SOAP-0.12.0 Services_JSON Text_Diff XML_HTMLSax XML_Parser
+	image_graph-0.8.0 
+)
+
+# Put in a default timezeone for php to mute fairly pointless error under EL6.x:
+#     PHP Warning:  date(): It is not safe to rely on the system's timezone settings.
+php -r '$z = date_default_timezone_get(); echo "date.timezone=$z\n";' \
+	2> /dev/null > /etc/php.d/timezone_hack.ini
+
+# Install any missing pear packages
+missing=()
+# TODO: pear proxy seems to break with ACNG (pear sends https traffic towards a http only proxy)...
+# pear config-set http_proxy "$proxy"
+for pear in "${pears[@]}"; do
+	if ! pear info "$pear" > /dev/null; then
+		missing+=("channel://pear.php.net/$pear")
+	fi
+done
+if [[ ${#missing[@]} -gt 0 ]]; then
+	# pear in centos5 is kinda out of date
+	if [[ $os == "centos5" ]]; then
+		pear upgrade -f pear
+	fi
+	pear channel-update pear.php.net
+	pear install "${missing[@]}"
+fi
+
+# Installing phpunit for SMP testing, it needs a separate channel.
+if ! pear list -c phpunit | egrep -q '^PHPUnit '; then
+	# channel-discover might return non-zero exit
+	pear channel-discover pear.phpunit.de || true
+	pear channel-discover pear.symfony.com || true
+	pear install phpunit/PHPUnit
+fi
+
+# install for autotesting
+if ! gem list | grep "^guard-phpunit " -q; then
+	gem install guard-phpunit
+fi

@@ -1,0 +1,131 @@
+install
+url --url=%MIRROR% %PROXY%
+lang en_US.UTF-8
+keyboard us
+network --bootproto dhcp
+rootpw --iscrypted $1$damlkd,f$UC/u5pUts5QiU3ow.CSso/
+firewall --enabled --trust eth0 --ssh
+authconfig --enableshadow --enablemd5
+selinux --disabled
+timezone UTC
+bootloader --location=mbr
+
+# Squiz custom repos
+repo --name=squiz-noarch --baseurl=http://packages.squiz.net/scientific/6/noarch/
+repo --name=squiz-x64 --baseurl=http://packages.squiz.net/scientific/6/x86_64/
+
+text
+skipx
+zerombr
+
+clearpart --all --initlabel
+# override standard partitions so as to assign everything to / (normally creates quite a large /home):
+part /boot --fstype ext3 --size=100
+part pv.01 --grow --size=1
+volgroup vg pv.01
+logvol --vgname vg / --size=1 --grow --name=root
+logvol --vgname vg swap --size=2048 --name=swap
+
+auth --useshadow --enablemd5
+firstboot --disabled
+reboot
+
+# install essential packages only
+%packages --nobase
+yum
+crontabs
+kernel
+openssh-server
+which
+sudo
+
+# required for vagrant build
+openssh-clients
+wget
+
+# required for VirtualBox tools to install (which is required for vagrant to work)
+gcc
+gcc-c++
+make
+kernel-devel
+perl
+
+# packages that are included depspite --nobase, that we don't need
+-audit
+-iptables-ipv6
+-ncurses
+-policycoreutils
+-selinux-policy-targeted
+-selinux-policy 
+-aic94xx-firmware
+-atmel-firmware
+-bfa-firmware
+-ipw2100-firmware
+-ipw2200-firmware
+-ivtv-firmware
+-iwl100-firmware
+-iwl1000-firmware
+-iwl3945-firmware
+-iwl4965-firmware
+-iwl5000-firmware
+-iwl5150-firmware
+-iwl6000-firmware
+-iwl6000g2a-firmware
+-iwl6050-firmware
+-kernel-firmware
+-libertas-usb8388-firmware
+-ql2100-firmware
+-ql2200-firmware
+-ql23xx-firmware
+-ql2400-firmware
+-ql2500-firmware
+-rt61pci-firmware
+-rt73usb-firmware
+-xorg-x11-drv-ati-firmware
+-zd1211-firmware
+-dracut
+-plymouth
+-plymouth-scripts
+-plymouth-core-libs
+-xz
+-yum-plugin-security
+-mailx
+
+# direct matrix deps
+httpd
+php
+php-ldap
+php-cli
+php-pgsql
+php-gd
+php-soap
+php-xml
+php-mysql
+php-mbstring
+php-pear
+php-pspell
+zlib-devel
+pcre-devel
+tidy
+# antiword - TODO: Squiz repo
+poppler-utils
+
+# We're using postgres as the db
+postgresql
+postgresql-contrib
+postgresql-server
+
+# cvs used for the matrix checkout.sh script
+cvs
+
+# used during template generation/restoration
+rsync
+
+# needed for guard
+rubygems
+
+%post
+/usr/sbin/groupadd vagrant
+/usr/sbin/useradd vagrant -g vagrant -G wheel
+echo "vagrant" | passwd --stdin vagrant
+echo "vagrant        ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers
