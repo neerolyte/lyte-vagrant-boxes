@@ -113,7 +113,7 @@ mv -- "$final.tmp" "$final"
 sed "$e" definitions/"$name"/ks.cfg.template > definitions/"$name"/ks.cfg
 
 message "Building"
-vagrant basebox build "$name"
+vagrant basebox build "$name" --force --nogui
 
 message "Exporting"
 sleep 5 # work around race condition where if you run export too quickly after build, it fails
