@@ -48,8 +48,3 @@ if ! pear list -c phpunit | egrep -q '^PHPUnit '; then
 	pear channel-discover pear.symfony.com || true
 	pear install phpunit/PHPUnit
 fi
-
-# install for autotesting
-if ! gem list | grep "^guard-phpunit " -q; then
-	gem install guard-phpunit
-fi
