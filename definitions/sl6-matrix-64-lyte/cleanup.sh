@@ -3,7 +3,6 @@ pkgs_to_kill=(
 	gcc
 	gcc-c++
 	make
-	kernel-devel
 	perl
 	wget
 )
