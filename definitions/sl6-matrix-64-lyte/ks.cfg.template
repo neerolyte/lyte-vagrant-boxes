@@ -107,7 +107,7 @@ php-pspell
 zlib-devel
 pcre-devel
 tidy
-# antiword - TODO: Squiz repo
+antiword
 poppler-utils
 
 # We're using postgres as the db
@@ -120,6 +120,9 @@ cvs
 
 # used during template generation/restoration
 rsync
+
+# stuff I don't want to work without
+vim
 
 # needed for guard
 rubygems
