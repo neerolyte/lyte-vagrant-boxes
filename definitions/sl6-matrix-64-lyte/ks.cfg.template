@@ -110,6 +110,9 @@ tidy
 antiword
 poppler-utils
 
+# used by matrix sometimes, may as well have everywhere
+uuid-php
+
 # We're using postgres as the db
 postgresql
 postgresql-contrib
