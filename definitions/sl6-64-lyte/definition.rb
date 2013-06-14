@@ -4,12 +4,16 @@ Veewee::Session.declare({
   :disk_size => '81920',
   :disk_format => 'VDI',
   :hostiocache => 'off',
-  :ioapic => 'on',
-  :pae => 'on',
+  :virtualbox => { 
+    :vm_options => [
+      "ioapic" => "on",
+      "pae" => "on"
+    ]
+  },
   :os_type_id => 'RedHat_64',
-  :iso_file => "SL-63-x86_64-2012-08-02-boot.iso",
-  :iso_src => "http://mirror.aarnet.edu.au/pub/scientific/6.3/x86_64/iso/SL-63-x86_64-2012-08-02-boot.iso",
-  :iso_md5 => "a0356a9d19cb462edb4f95790d435b8d",
+  :iso_file => "SL-64-x86_64-2013-03-18-boot.iso",
+  :iso_src => "http://mirror.aarnet.edu.au/pub/scientific/6.4/x86_64/iso/SL-64-x86_64-2013-03-18-boot.iso",
+  :iso_md5 => "e9625e2c3b4b02d94ffa478773d5d58f",
   :iso_download_timeout => 1000,
   :boot_wait => "15",
   :boot_cmd_sequence => [ '<Tab> text ks=http://%IP%:%PORT%/ks.cfg<Enter>' ],
