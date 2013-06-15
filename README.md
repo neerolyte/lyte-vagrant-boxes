@@ -6,12 +6,24 @@ Built with VeeWee (https://github.com/jedi4ever/veewee).
 
 Hosted here: http://lyte.id.au/vagrant/
 
-= Using with RVM =
+= Intallation =
 
-Install deps:
+First  install RVM: https://rvm.io/
+
+Then install all deps:
 
 `bundle install`
 
+= Usage =
+
+List available definitions:
+
+`veewee vbox list`
+
 Build a box:
 
-`base_builder sl6-matrix-64-lyte`
+`veewee vbox build $name [--force --nogui]`
+
+Exporting a built box:
+
+`veewee vbox export $name [--force]`
