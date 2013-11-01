@@ -14,6 +14,8 @@ Checklist
  * Vagrant SSH key deployed for vagrant and root users
  * SSH is fast (no DNS issues)
  * make, gcc, bzip2 and kernel headers are still installed (for plugins like vagrant-vbguest)
+ * SELinux disabled
+ * Disk at least 80GB
 
 EL specific:
  * there's no packages matching "*-firmware"
