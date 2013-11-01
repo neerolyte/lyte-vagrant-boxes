@@ -1,0 +1,1 @@
+../centos5-64-lyte/postinstall.sh

@@ -1,0 +1,115 @@
+#!/bin/bash -ex
+
+cd "$(dirname "$0")"
+
+os=sl6
+if grep -q '^CentOS release 5\.' /etc/redhat-release; then
+	os=centos5
+fi
+
+# Install Squiz Package repository if missing
+if ! [[ -f /etc/yum.repos.d/squiz.repo ]]; then
+	if [[ $os == 'sl6' ]]; then
+		rpm -Uvh http://packages.squiz.net/scientific/6/noarch/squiz-repo-0.3-0-squiz.noarch.rpm
+	else
+		rpm -Uvh http://packages.squiz.net/centos/5/noarch/squiz-repo-0.1-3-squiz.noarch.rpm
+	fi
+fi
+
+# List out any rpms we need to install
+rpms=(
+	# cvs used for the matrix checkout.sh script
+	cvs
+
+	# used during template generation/restoration
+	rsync
+
+	# regular matrix deps
+	httpd
+)
+
+if [[ $os == 'sl6' ]]; then
+	# Scientific Linux 6 requirements
+	rpms+=(
+		# direct matrix deps
+		php{,-{ldap,cli,pgsql,gd,soap,xml,mysql,mbstring,pear,pspell}}
+		zlib-devel pcre-devel tidy antiword poppler-utils
+		
+		# We are using postgres as the db
+		postgresql{,-contrib,-server}
+	)
+else
+	# CentOS 5 requirements
+	rpms+=(
+		# direct matrix deps
+		php53{,-{ldap,cli,pgsql,gd,soap,xml,mysql,mbstring,pspell}}
+		zlib-devel pcre-devel tidy antiword poppler-utils
+		
+		# We are using postgres as the db
+		postgresql84{,-contrib,-server}
+	)
+fi
+
+
+echo "Checking for missing rpm packages"
+# install rpm packages that are missing
+missing=()
+for rpm in "${rpms[@]}"; do
+	if ! rpm -q "$rpm" > /dev/null; then
+		missing+=("$rpm")
+	fi
+done
+if [[ ${#missing[@]} -gt 0 ]]; then
+	echo "Installing rpms: ${missing[@]}"
+	yum install -y "${missing[@]}"
+fi
+
+# PEAR was failing under CentOS5, so here we check if it's managed to install and install
+# it manually if it's missing
+if ! [[ $(type -t pear) == 'file' ]]; then
+	rm -f go-pear.phar
+	wget http://pear.php.net/go-pear.phar
+	# Unfortunately go-pear.phar is coded by drunk monkeys who like to press keys manually.
+	# So we use expect...
+	yum install -y expect
+	expect << EOF
+		spawn php go-pear.phar
+		expect "1-11, 'all' or Enter to continue:"
+		send "\r"
+		expect eof
+EOF
+fi
+
+# pear packages
+pears=(
+	Auth_SASL HTTP{,_Client,_Request} I18N_UnicodeNormalizer
+	Image_Canvas-0.3.3 Image_Color MDB2 Mail Mail_Mime Mail_Queue
+	Mail_mimeDecode Math_Stats Net_SMTP Net_Socket Net_URL Numbers_Roman
+	SOAP-0.12.0 Services_JSON Text_Diff XML_HTMLSax XML_Parser
+	image_graph-0.8.0 
+)
+
+# Put in a default timezeone for php to mute fairly pointless error under EL6.x:
+#     PHP Warning:  date(): It is not safe to rely on the system's timezone settings.
+php -r '$z = date_default_timezone_get(); echo "date.timezone=$z\n";' \
+	2> /dev/null > /etc/php.d/timezone_hack.ini
+
+echo "Checking for missing PEAR packages"
+missing=()
+for pear in "${pears[@]}"; do
+	if ! pear info "$pear" > /dev/null; then
+		missing+=("channel://pear.php.net/$pear")
+	fi
+done
+if [[ ${#missing[@]} -gt 0 ]]; then
+	pear channel-update pear.php.net
+	pear install "${missing[@]}"
+fi
+
+# Installing phpunit
+if ! pear list -c phpunit | egrep -q '^PHPUnit '; then
+	# channel-discover might return non-zero exit
+	pear channel-discover pear.phpunit.de || true
+	pear channel-discover pear.symfony.com || true
+	pear install phpunit/PHPUnit
+fi
