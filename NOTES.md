@@ -12,7 +12,7 @@ Checklist
 =========
 
  * Vagrant SSH key deployed for vagrant and root users
- * SSH is fast (no DNS issues)
+ * UseDNS is disabled in /etc/ssh/sshd_config
  * make, gcc, bzip2 and kernel headers are still installed (for plugins like vagrant-vbguest)
  * SELinux disabled
  * Disk at least 80GB

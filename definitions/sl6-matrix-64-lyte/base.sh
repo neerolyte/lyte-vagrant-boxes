@@ -1,1 +1,1 @@
-sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
+../sl6-64-lyte/base.sh
