@@ -4,10 +4,12 @@ Veewee::Session.declare({
   :disk_size => '81920',
   :disk_format => 'VDI',
   :hostiocache => 'off',
-  :ioapic => 'on',
-  :pae => 'on',
   :os_type_id => 'RedHat_64',
   :iso_file => "SL-63-x86_64-2012-08-02-boot.iso",
+  :virtualbox => { :vm_options => [
+    "ioapic" => "on",
+    "pae" => "on"
+  ]},
   :iso_src => "http://mirror.aarnet.edu.au/pub/scientific/6.3/x86_64/iso/SL-63-x86_64-2012-08-02-boot.iso",
   :iso_md5 => "a0356a9d19cb462edb4f95790d435b8d",
   :iso_download_timeout => 1000,
