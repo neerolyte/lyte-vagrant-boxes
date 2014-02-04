@@ -32,3 +32,6 @@ Build a box:
 Exporting a built box:
 
 `veewee vbox export $name [--force]`
+
+Before importing to Vagrant itself, start up a fresh shell (so that you're not using RVM to access it) and run:
+`vagrant box add sl6-matrix-64-lyte %path-to-box-file%`
